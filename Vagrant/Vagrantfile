@@ -1,33 +1,36 @@
 Vagrant.configure(2) do |config|
  config.ssh.forward_agent = true
- 
+
+ # Configuration of image installation on all machines.
+ config.vm.box = "bento/ubuntu-24.04"
+
+  # We configure a virtual machine, assign a name and set up a private network with a fixed IP for 1 application server.
   config.vm.define "app1" do |app1|
-    app1.vm.box = "bento/ubuntu-24.04"
-    app1.vm.host_name = "app-server1"
+    app1.vm.hostname = "app-server1"
     app1.vm.network "private_network", ip: "192.168.56.10"
   end
   
+   # We configure a virtual machine, assign a name and set up a private network with a fixed IP for 1 application server.
   config.vm.define "app2" do |app2|    
-    app2.vm.box = "bento/ubuntu-24.04"
-    app2.vm.host_name = "app-server2"
+    app2.vm.hostname = "app-server2"
     app2.vm.network :private_network, ip: "192.168.56.11" 
   end  
-
+ 
+  # We configure the virtual machine, assign a name and set up a private network with a fixed IP for the Load Balsncer.
   config.vm.define "lb" do |lb|    
-    lb.vm.box = "bento/ubuntu-24.04"
-    lb.vm.host_name = "load-balancer"
+    lb.vm.hostname = "load-balancer"
     lb.vm.network :private_network, ip: "192.168.56.12" 
   end
   
+   # We configure the virtual machine, assign a name and set up a private network with a fixed IP for the PostgresSQL.
   config.vm.define "postgresql" do |postgres|    
-    postgres.vm.box = "bento/ubuntu-24.04"
-    postgres.vm.host_name = "postgres-server"
+    postgres.vm.hostname = "postgres-server"
     postgres.vm.network :private_network, ip: "192.168.56.13" 
   end
  
+   # We configure the virtual machine, assign a name and set up a private network with a fixed IP for the Consul.
   config.vm.define "consul" do |consul|    
-    consul.vm.box = "bento/ubuntu-24.04"
-    consul.vm.host_name = "consul-server"
+    consul.vm.hostname = "consul-server"
     consul.vm.network :private_network, ip: "192.168.56.14" 
   end
 
