@@ -1,4 +1,5 @@
 .vagrant
+*ssh_vagrant/vagrant_command_key
 *.log
 *.tmp
 .DS_Store
