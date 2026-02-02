@@ -5,7 +5,7 @@
 
   # Added public key to authorized_keys
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    cat /vagrant/ssh_vagrant/vagrant_command_key.pub >> /home/vagrant/.ssh/authorized_keys
+    cat /vagrant/ssh_vagrant/vagrant_command_key.pub >> ~/.ssh/authorized_keys
   SHELL
 
   # We configure a virtual machine, assign a name and set up a private network with a fixed IP for 1 application server.
