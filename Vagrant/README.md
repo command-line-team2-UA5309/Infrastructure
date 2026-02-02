@@ -21,9 +21,8 @@ The project uses its own keys, which the vagrant file adds to authorized_keys
    - Request `vagrant_command_key` from your team lead
    - Place it in the `ssh_vagrant/` directory
    - Set appropriate permissions:
-```bash
-     chmod 600 ssh_vagrant/vagrant_command_key
-```
+  ```bash
+       chmod 600 ssh_vagrant/vagrant_command_key
 3. Start the VMs:
 ```bash
    vagrant up
