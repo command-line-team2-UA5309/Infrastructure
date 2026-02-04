@@ -1,0 +1,100 @@
+---
+- hosts: apps
+  become: yes
+
+  vars:
+    app_name: flaskpictureapp
+    user: vagrant
+    app_dir: "/home/{{ user }}/{{ app_name }}"
+    repo_url: "https://github.com/command-line-team2-UA5309/FlaskPictureApp.git"
+    app_port: 8080
+
+  tasks:
+    - name: System update
+      apt:
+        update_cache: yes
+       
+    - name: Install packages
+      apt:
+        name:
+          - git
+          - python3-venv
+          - python3-dev
+          - libpq-dev
+          - build-essential
+          - nginx
+        state: present
+        
+    - name: Clone repo
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        update: yes
+      become_user: "{{ user }}"
+
+    - name: Create venv
+      command: python3 -m venv venv
+      args:
+        chdir: "{{ app_dir }}"
+        creates: "{{ app_dir }}/venv/bin/activate"
+      become_user: "{{ user }}"
+
+    - name: Install dependencies from requirements.txt
+      pip:
+        requirements: "{{ app_dir }}/requirements.txt"
+        virtualenv: "{{ app_dir }}/venv"
+      become_user: "{{ user }}"
+
+    - name: Install gunicorn
+      pip:
+        name: gunicorn
+        virtualenv: "{{ app_dir }}/venv"
+      become_user: "{{ user }}"
+
+    - name: Create gunicorn systemd service
+      template:
+        src: templates/gunicorn-{{ app_name }}.service.j2
+        dest: "/etc/systemd/system/{{ app_name }}.service"
+      notify: restart gunicorn
+
+    - name: Enable and start gunicorn service
+      systemd:
+        name: "{{ app_name }}"
+        enabled: yes
+        state: started
+    
+    - name: Create nginx site config
+      template:
+        src: templates/nginx-{{ app_name }}.j2
+        dest: "/etc/nginx/sites-available/{{ app_name }}"
+      notify: restart nginx
+
+    - name: Enable nginx site
+      file:
+        src: "/etc/nginx/sites-available/{{ app_name }}"
+        dest: "/etc/nginx/sites-enabled/{{ app_name }}"
+        state: link
+      notify: restart nginx
+
+    - name: Remove default nginx config
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: restart nginx
+
+    - name: Allow nginx in ufw
+      ufw:
+        rule: allow
+        name: Nginx Full
+
+  handlers:
+    - name: restart gunicorn
+      systemd:
+        name: "{{ app_name }}"
+        state: restarted
+        daemon_reload: yes
+
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
