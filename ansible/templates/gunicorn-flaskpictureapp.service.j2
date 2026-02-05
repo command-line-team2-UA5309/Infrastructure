@@ -7,13 +7,7 @@ User={{ user }}
 Group={{ user }}
 WorkingDirectory={{ app_dir }}
 
-Environment="PATH={{ app_dir }}/venv/bin"
-Environment="DB_NAME=flask_db"
-Environment="DB_USER=flask_user"
-Environment="DB_PASSWORD=flask_pass"
-Environment="DB_HOST=192.168.56.20"
-Environment="DB_PORT=5432"
-Environment="SECRET_KEY=supersecretkey"
+EnvironmentFile={{ app_dir }}/.env
 
 ExecStart={{ app_dir }}/venv/bin/gunicorn --bind 0.0.0.0:{{ app_port }} app:app
 
