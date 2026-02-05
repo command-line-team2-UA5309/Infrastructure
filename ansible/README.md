@@ -1,6 +1,6 @@
 # Configuration
 
-Before running the playbook, make sure to define these variables. 
+Before running the playbook, make sure to define these variables.
 They are required for the database connection and app security:
 
 * **db_name**: Name of your database
