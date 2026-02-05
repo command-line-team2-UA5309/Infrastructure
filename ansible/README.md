@@ -13,4 +13,5 @@ You can pass them directly in the command line:
 ```bash
 ansible-playbook apps.yml -e "db_name=mydb db_user=myuser db_password=mypass secret_key=mysecret"
 ```
+
 [EOF]
