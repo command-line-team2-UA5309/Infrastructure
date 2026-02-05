@@ -1,0 +1,92 @@
+---
+- hosts: apps
+  become: yes
+
+  tasks:
+    - name: System update
+      ansible.builtin.apt:
+        update_cache: yes
+       
+    - name: Install packages
+      ansible.builtin.apt:
+        name:
+          - git
+          - python3-venv
+          - python3-dev
+          - libpq-dev
+          - build-essential
+          - nginx
+        state: present
+        
+    - name: Clone repo
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        update: yes
+      become_user: "{{ user }}"
+
+    - name: Install dependencies into virtualenv
+      ansible.builtin.pip:
+        requirements: "{{ app_dir }}/requirements.txt"
+        virtualenv: "{{ app_dir }}/venv"
+        virtualenv_command: python3 -m venv  
+      become: true
+
+    - name: Create .env file
+      ansible.builtin.template:
+        src: templates/app.env.j2
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ user }}"
+        group: "{{ user }}"
+        mode: '0600'
+      notify: restart gunicorn
+
+    - name: Create gunicorn systemd service
+      ansible.builtin.template:
+        src: templates/gunicorn-{{ app_name }}.service.j2
+        dest: "/etc/systemd/system/{{ app_name }}.service"
+      notify: restart gunicorn
+
+    - name: Enable and start gunicorn service
+      ansible.builtin.systemd:
+        name: "{{ app_name }}"
+        enabled: yes
+        state: started
+    
+    - name: Create nginx site config
+      ansible.builtin.template:
+        src: templates/nginx-{{ app_name }}.j2
+        dest: "/etc/nginx/sites-available/{{ app_name }}"
+      notify: restart nginx
+
+    - name: Enable nginx site
+      ansible.builtin.file:
+        src: "/etc/nginx/sites-available/{{ app_name }}"
+        dest: "/etc/nginx/sites-enabled/{{ app_name }}"
+        state: link
+      notify: restart nginx
+
+    - name: Remove default nginx config
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: restart nginx
+
+    - name: Allow nginx in ufw
+      community.general.ufw:
+        rule: allow
+        name: Nginx Full
+
+  handlers:
+    - name: restart gunicorn
+      ansible.builtin.systemd:
+        #The name of the system service is the same 
+        #as the name of the application - app_name
+        name: "{{ app_name }}"
+        state: restarted
+        daemon_reload: yes
+
+    - name: restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted

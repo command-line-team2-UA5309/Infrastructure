@@ -1,0 +1,15 @@
+[Unit]
+Description=Gunicorn to serve {{ app_name }}
+After=network.target
+
+[Service]
+User={{ user }}
+Group={{ user }}
+WorkingDirectory={{ app_dir }}
+
+EnvironmentFile={{ app_dir }}/.env
+
+ExecStart={{ app_dir }}/venv/bin/gunicorn --bind 0.0.0.0:{{ app_port }} app:app
+
+[Install]
+WantedBy=multi-user.target
