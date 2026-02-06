@@ -1,0 +1,39 @@
+---
+- hosts: lb
+  become: yes
+ 
+  tasks:
+    - name: Packages updates
+      ansible.builtin.apt:
+        update_cache: yes
+       
+    - name: Install packages
+      ansible.builtin.apt:
+        name:
+          - nginx
+        state: present
+        
+    - name: Create nginx site config
+      ansible.builtin.template:
+        src: templates/nginx-loadbalancer.j2
+        dest: "/etc/nginx/sites-available/loadbalancer"
+      notify: restart nginx
+
+    - name: Enable nginx site
+      ansible.builtin.file:
+        src: "/etc/nginx/sites-available/loadbalancer"
+        dest: "/etc/nginx/sites-enabled/loadbalancer"
+        state: link
+      notify: restart nginx
+
+    - name: Remove default nginx config
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: restart nginx
+
+  handlers:
+    - name: restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
