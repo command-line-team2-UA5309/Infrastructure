@@ -1,12 +1,9 @@
 ---
 - hosts: lb
   become: yes
-  
-  vars:
-    dir_name: loadbalancer
-
+ 
   tasks:
-    - name: System update
+    - name: Packages updates
       ansible.builtin.apt:
         update_cache: yes
        
@@ -18,14 +15,14 @@
         
     - name: Create nginx site config
       ansible.builtin.template:
-        src: templates/nginx-{{ dir_name }}.j2
-        dest: "/etc/nginx/sites-available/{{ dir_name }}"
+        src: templates/nginx-loadbalancer.j2
+        dest: "/etc/nginx/sites-available/loadbalancer"
       notify: restart nginx
 
     - name: Enable nginx site
       ansible.builtin.file:
-        src: "/etc/nginx/sites-available/{{ dir_name }}"
-        dest: "/etc/nginx/sites-enabled/{{ dir_name }}"
+        src: "/etc/nginx/sites-available/loadbalancer"
+        dest: "/etc/nginx/sites-enabled/loadbalancer"
         state: link
       notify: restart nginx
 
@@ -35,16 +32,7 @@
         state: absent
       notify: restart nginx
 
-    - name: Allow nginx in ufw
-      community.general.ufw:
-        rule: allow
-        name: '{{ item }}'
-      loop:
-        - OpenSSH
-        - Nginx Full
-
   handlers:
-  
     - name: restart nginx
       ansible.builtin.service:
         name: nginx
