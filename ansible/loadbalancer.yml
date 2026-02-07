@@ -1,39 +1,41 @@
 ---
-- hosts: lb
-  become: yes
- 
+- name: "Set up load balancer VM"
+  hosts: lb
+  become: true
+
   tasks:
     - name: Packages updates
       ansible.builtin.apt:
-        update_cache: yes
-       
+        update_cache: true
+
     - name: Install packages
       ansible.builtin.apt:
         name:
           - nginx
         state: present
-        
+
     - name: Create nginx site config
       ansible.builtin.template:
         src: templates/nginx-loadbalancer.j2
         dest: "/etc/nginx/sites-available/loadbalancer"
-      notify: restart nginx
+        mode: "0644"
+      notify: Restart nginx
 
     - name: Enable nginx site
       ansible.builtin.file:
         src: "/etc/nginx/sites-available/loadbalancer"
         dest: "/etc/nginx/sites-enabled/loadbalancer"
         state: link
-      notify: restart nginx
+      notify: Restart nginx
 
     - name: Remove default nginx config
       ansible.builtin.file:
         path: /etc/nginx/sites-enabled/default
         state: absent
-      notify: restart nginx
+      notify: Restart nginx
 
   handlers:
-    - name: restart nginx
+    - name: Restart nginx
       ansible.builtin.service:
         name: nginx
         state: restarted
