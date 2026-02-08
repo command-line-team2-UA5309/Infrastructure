@@ -3,7 +3,7 @@
   hosts: apps
   become: true
   vars_files:
-    - group_vars/consul.yml
+    - roles/consul/vars/main.yml
 
   tasks:
     - name: System update
@@ -19,66 +19,17 @@
           - libpq-dev
           - build-essential
           - nginx
-          - unzip
         state: present
 
-    - name: Create resolve.conf.d directory
-      ansible.builtin.file:
-        path: "/etc/systemd/resolved.conf.d"
-        state: directory
-        mode: "0755"
-        owner: "root"
-        group: "root"
-      notify: Restart systemd-resolved
-
-    - name: Create systemd-resolved config file
-      ansible.builtin.copy:
-        src: files/consul.conf
-        dest: "/etc/systemd/resolved.conf.d/consul.conf"
-        mode: "0644"
-        owner: "root"
-        group: "root"
-      notify: Restart systemd-resolved
-
-    - name: Create consul group
-      ansible.builtin.group:
-        name: "{{ consul_user }}"
-        system: true
-
-    - name: Create consul user
-      ansible.builtin.user:
-        name: "{{ consul_user }}"
-        group: "{{ consul_user }}"
-
-    - name: Create consul directories
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: directory
-        owner: "{{ consul_user }}"
-        group: "{{ consul_user }}"
-        mode: "0755"
+    - name: Install Consul
+      ansible.builtin.include_role:
+        name: consul
+        tasks_from: "{{ tasks_file }}"
       loop:
-        - "{{ consul_config_dir }}"
-        - "{{ consul_data_dir }}"
-
-    - name: Download and unarchive the Consul binary
-      ansible.builtin.unarchive:
-        src: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip"
-        dest: "{{ consul_bin_dir }}/"
-        remote_src: true
-        owner: "{{ consul_user }}"
-        group: "{{ consul_user }}"
-        mode: "0755"
-      notify: Restart consul
-
-    - name: Create Consul configuration file
-      ansible.builtin.template:
-        src: templates/consul-agent-config.hcl.j2
-        dest: "{{ consul_config_dir }}/agent-config.hcl"
-        owner: "{{ consul_user }}"
-        group: "{{ consul_user }}"
-        mode: "0644"
-      notify: Restart consul
+        - main.yml
+        - agent.yml
+      loop_control:
+        loop_var: tasks_file
 
     - name: Create consul service config file
       ansible.builtin.copy:
@@ -88,22 +39,6 @@
         group: "{{ consul_user }}"
         mode: "0644"
       notify: Restart consul
-
-    - name: Create Consul systemd service file
-      ansible.builtin.template:
-        src: templates/consul.service.j2
-        dest: /etc/systemd/system/consul.service
-        owner: "{{ consul_user }}"
-        group: "{{ consul_user }}"
-        mode: "0644"
-      notify: Restart consul
-
-    - name: Enable and start consul service
-      ansible.builtin.systemd:
-        name: consul.service
-        enabled: true
-        state: started
-        daemon_reload: true
 
     - name: Clone repo
       ansible.builtin.git:
@@ -177,11 +112,6 @@
     - name: Restart nginx
       ansible.builtin.service:
         name: nginx
-        state: restarted
-
-    - name: Restart systemd-resolved
-      ansible.builtin.service:
-        name: systemd-resolved
         state: restarted
 
     - name: Restart consul

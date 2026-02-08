@@ -1,0 +1,9 @@
+---
+- name: Create Consul server configuration file
+  ansible.builtin.template:
+    src: templates/consul-server-config.hcl.j2
+    dest: "{{ consul_config_dir }}/server-config.hcl"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_user }}"
+    mode: "0644"
+  notify: Restart consul

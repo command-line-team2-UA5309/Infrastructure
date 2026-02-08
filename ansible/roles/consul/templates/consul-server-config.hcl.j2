@@ -3,7 +3,7 @@ bootstrap_expect = 1
 data_dir         = "{{ consul_data_dir }}"
 
 client_addr      = "0.0.0.0"
-bind_addr        = {% raw %}"{{ GetInterfaceIP \"{% endraw %}{{ interface_name }}{% raw %}\" }}"{% endraw %}
+bind_addr        = {% raw %}"{{ GetInterfaceIP \"{% endraw %}{{ consul_interface_name }}{% raw %}\" }}"{% endraw %}
 
 
 ui_config {
