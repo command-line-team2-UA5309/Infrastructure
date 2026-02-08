@@ -3,7 +3,7 @@
   become: yes
 
   tasks:
-    - name: Packages updates
+    - name: Update apt cache
       ansible.builtin.apt:
         update_cache: yes
 
@@ -12,11 +12,64 @@
         name: unzip
         state: present
 
+    - name: Create consul group
+      ansible.builtin.group:
+        name: "{{ consul_user }}"
+        system: yes
+
+    - name: Create consul user
+      ansible.builtin.user:
+        name: "{{ consul_user }}"
+        group: "{{ consul_user }}"
+        
+    - name: Create consul directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ consul_user }}"
+        group: "{{ consul_user }}"
+        mode: "0750"
+      loop:
+        - "{{ consul_config_dir }}"
+        - "{{ consul_data_dir }}"
+
     - name: Download and unarchive the Consul binary
       ansible.builtin.unarchive:
-        src: "https://releases.hashicorp.com/consul/1.22.3/consul_1.22.3_linux_amd64.zip"
-        dest: "/usr/local/bin/"
+        src: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip"
+        dest: "{{ consul_bin_dir }}/"
         remote_src: yes
-        owner: vagrant
-        group: vagrant
+        owner: "{{ consul_user }}"
+        group: "{{ consul_user }}"
         mode: "0750"
+      notify: restart consul
+
+    - name: Create Consul configuration file
+      ansible.builtin.template:
+        src: consul_config.hcl.j2        
+        dest: "{{ consul_config_dir }}/consul_config.hcl"
+        owner: "{{ consul_user }}"
+        group: "{{ consul_user }}"
+        mode: "0640"
+      notify: restart consul
+
+    - name: Create Consul systemd service file
+      ansible.builtin.template:
+        src: consul.service.j2
+        dest: /etc/systemd/system/consul.service
+        owner: "{{ consul_user }}"
+        group: "{{ consul_user }}"
+        mode: "0644"
+      notify: restart consul
+
+    - name: Enable and start systemd service
+      ansible.builtin.systemd:
+        name: consul.service
+        enabled: yes
+        state: started
+        daemon_reload: yes
+
+  handlers:
+    - name: restart consul
+      ansible.builtin.systemd:
+        name: consul.service
+        state: restarted
