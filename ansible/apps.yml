@@ -72,10 +72,6 @@
         state: absent
       notify: restart nginx
 
-    - name: Allow nginx in ufw
-      community.general.ufw:
-        rule: allow
-        name: Nginx Full
 
   handlers:
     - name: restart gunicorn
