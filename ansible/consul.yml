@@ -1,9 +1,7 @@
 ---
-- name: "Set up Consul VM"
+- name: Set up Consul VM
   hosts: consul
   become: true
-  vars_files:
-    - group_vars/consul.yml
 
   tasks:
     - name: Update apt cache

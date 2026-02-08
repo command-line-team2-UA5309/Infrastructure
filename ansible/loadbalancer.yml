@@ -1,5 +1,5 @@
 ---
-- name: "Set up load balancer VM"
+- name: Set up load balancer VM
   hosts: lb
   become: true
   vars_files:
