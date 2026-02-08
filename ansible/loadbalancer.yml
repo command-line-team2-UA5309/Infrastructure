@@ -18,13 +18,11 @@
 
     - name: Install Consul
       ansible.builtin.include_role:
-        name: consul
-        tasks_from: "{{ tasks_file }}"
-      loop:
-        - main.yml
-        - agent.yml
-      loop_control:
-        loop_var: tasks_file
+        name: consul-install
+
+    - name: Create consul agent config file
+      ansible.builtin.include_role:
+        name: consul-agent
 
     - name: Download and unarchive the consul-template binary
       ansible.builtin.unarchive:

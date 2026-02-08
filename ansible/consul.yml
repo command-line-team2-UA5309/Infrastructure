@@ -10,10 +10,8 @@
 
     - name: Install Consul
       ansible.builtin.include_role:
-        name: consul
-        tasks_from: "{{ tasks_file }}"
-      loop:
-        - main.yml
-        - server.yml
-      loop_control:
-        loop_var: tasks_file
+        name: consul-install
+
+    - name: Create consul server config file
+      ansible.builtin.include_role:
+        name: consul-server

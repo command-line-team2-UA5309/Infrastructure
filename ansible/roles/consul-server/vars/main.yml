@@ -1,0 +1,8 @@
+---
+consul_user: "consul"
+consul_version: "1.22.3"
+consul_config_dir: "/etc/consul.d"
+consul_data_dir: "/var/lib/consul"
+consul_bin_dir: "/usr/bin"
+consul_server_address: "192.168.56.14"
+consul_interface_name: eth1
