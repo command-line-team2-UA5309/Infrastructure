@@ -7,7 +7,7 @@ service {
       id = "check-nginx-tcp",
       name = "nginx",
       tcp = "localhost:80",
-      interval = "5s",
+      interval = "15s",
       timeout = "5s"
     },
     {
