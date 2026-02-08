@@ -13,6 +13,7 @@
   ansible.builtin.user:
     name: "{{ consul_user }}"
     group: "{{ consul_user }}"
+    create_home: false
 
 - name: Create consul directories
   ansible.builtin.file:
