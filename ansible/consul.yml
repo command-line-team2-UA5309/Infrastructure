@@ -8,6 +8,24 @@
       ansible.builtin.apt:
         update_cache: true
 
+    - name: Create resolve.conf.d directory
+      ansible.builtin.file:
+        path: "/etc/systemd/resolved.conf.d"
+        state: directory
+        mode: '0755'
+        owner: "root"
+        group: "root"
+      notify: Restart systemd-resolved
+
+    - name: Create systemd-resolved config file
+      ansible.builtin.copy:
+        src: files/consul.conf
+        dest: "/etc/systemd/resolved.conf.d/consul.conf"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify: Restart systemd-resolved
+
     - name: Ensure that unzip is installed
       ansible.builtin.apt:
         name: unzip
@@ -70,6 +88,11 @@
         daemon_reload: true
 
   handlers:
+    - name: Restart systemd-resolved
+      ansible.builtin.service:
+        name: systemd-resolved
+        state: restarted
+
     - name: Restart consul
       ansible.builtin.systemd:
         name: consul.service
