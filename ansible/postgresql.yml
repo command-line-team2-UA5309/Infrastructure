@@ -14,3 +14,18 @@
       ansible.builtin.apt:
         name: postgresql
         state: present
+
+    - name: Create consul service config file
+      ansible.builtin.copy:
+        src: files/postgresql.hcl
+        dest: "{{ consul_config_dir }}/postgresql.hcl"
+        owner: "{{ consul_user }}"
+        group: "{{ consul_user }}"
+        mode: "0644"
+      notify: Restart consul
+
+  handlers:
+    - name: Restart consul
+      ansible.builtin.systemd:
+        name: consul
+        state: restarted
