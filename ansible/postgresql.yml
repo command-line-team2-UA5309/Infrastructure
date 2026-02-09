@@ -1,0 +1,16 @@
+---
+- name: Set up PostgreSQL VM
+  hosts: db
+  become: true
+  roles:
+    - role: consul-agent
+
+  post_tasks:
+    - name: Packages updates
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install packages
+      ansible.builtin.apt:
+        name: postgresql
+        state: present
