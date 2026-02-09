@@ -1,0 +1,10 @@
+---
+- name: Restart systemd-resolved
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: restarted
+
+- name: Restart consul
+  ansible.builtin.systemd:
+    name: consul.service
+    state: restarted

@@ -1,0 +1,11 @@
+#apps setting
+app_name: flaskpictureapp
+user: vagrant
+app_dir: "/home/{{ user }}/{{ app_name }}"
+repo_url: "https://github.com/command-line-team2-UA5309/FlaskPictureApp.git"
+app_port: 8080
+app_domain: "_"
+
+#data base
+db_host: "192.168.56.20"
+db_port: 5432

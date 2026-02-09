@@ -1,1 +1,5 @@
-.vscode/
+.vagrant
+*.log
+*.tmp
+.DS_Store
+.vscode
