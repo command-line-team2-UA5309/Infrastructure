@@ -6,7 +6,7 @@ Before running some playbooks, make sure to define these variables.
 You can pass them directly in the command line:
 
 ```bash
-ansible-playbook <playbook-path> -e "db_name=mydb db_user=myuser db_password=mypass secret_key=mysecret"
+ansible-playbook <playbook-path> -e "db_name=mydb db_user=myuser..."
 ```
 
 The list of playbooks and their required variables are listed below:
