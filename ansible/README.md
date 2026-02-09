@@ -1,15 +1,25 @@
 # Configuration
 
-Before running the playbook, make sure to define these variables.
-They are required for the database connection and app security:
+## Passing sensitive variables to the playbook
+
+Before running some playbooks, make sure to define these variables.
+You can pass them directly in the command line:
+
+```bash
+ansible-playbook <playbook-path> -e "db_name=mydb db_user=myuser db_password=mypass secret_key=mysecret"
+```
+
+The list of playbooks and their required variables are listed below:
+
+### Application VM playbook
 
 * **db_name**: Name of your database
 * **db_user**: Database username
 * **db_password**: Password for the database user
 * **secret_key**: Secret key for the Flask app
 
-You can pass them directly in the command line:
+### PostgreSQL VM playbook
 
-```bash
-ansible-playbook apps.yml -e "db_name=mydb db_user=myuser db_password=mypass secret_key=mysecret"
-```
+* **db_name**: Name of your database
+* **db_user**: Database username
+* **db_password**: Password for the database user
