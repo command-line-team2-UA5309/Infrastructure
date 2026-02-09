@@ -1,39 +1,93 @@
 ---
-- hosts: lb
-  become: yes
- 
-  tasks:
+- name: Set up load balancer VM
+  hosts: lb
+  become: true
+  roles:
+    - role: consul-agent
+
+  post_tasks:
     - name: Packages updates
       ansible.builtin.apt:
-        update_cache: yes
-       
+        update_cache: true
+
     - name: Install packages
       ansible.builtin.apt:
         name:
           - nginx
         state: present
-        
-    - name: Create nginx site config
+
+    - name: Download and unarchive the consul-template binary
+      ansible.builtin.unarchive:
+        src: "https://releases.hashicorp.com/consul-template/{{ consul_template_version }}/consul-template_{{ consul_template_version }}_linux_amd64.zip"
+        dest: "{{ consul_template_bin_dir }}/"
+        remote_src: true
+        owner: "root"
+        group: "root"
+        mode: "0755"
+      notify: Restart consul-template
+
+    - name: Create consul service config file
+      ansible.builtin.copy:
+        src: files/load-balancer.hcl
+        dest: "{{ consul_config_dir }}/load-balancer.hcl"
+        owner: "{{ consul_user }}"
+        group: "{{ consul_user }}"
+        mode: "0644"
+      notify: Restart consul
+
+    - name: Create consul-template config file
+      ansible.builtin.copy:
+        src: files/consul-template-conf.hcl
+        dest: "/etc/nginx/sites-available/consul-template-config.hcl"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify: Restart consul-template
+
+    - name: Create load balancer template
+      ansible.builtin.copy:
+        src: files/loadbalancer.ctmpl
+        dest: "/etc/nginx/sites-available/loadbalancer.ctmpl"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify: Restart consul-template
+
+    - name: Create consul-template systemd service
       ansible.builtin.template:
-        src: templates/nginx-loadbalancer.j2
-        dest: "/etc/nginx/sites-available/loadbalancer"
-      notify: restart nginx
+        src: templates/consul-template.service.j2
+        dest: "/etc/systemd/system/consul-template.service"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify: Restart consul-template
+
+    - name: Enable and start consul-template service
+      ansible.builtin.systemd:
+        name: consul-template
+        state: started
+        enabled: true
+        daemon_reload: true
 
     - name: Enable nginx site
       ansible.builtin.file:
         src: "/etc/nginx/sites-available/loadbalancer"
         dest: "/etc/nginx/sites-enabled/loadbalancer"
         state: link
-      notify: restart nginx
+        force: true
 
     - name: Remove default nginx config
       ansible.builtin.file:
         path: /etc/nginx/sites-enabled/default
         state: absent
-      notify: restart nginx
 
   handlers:
-    - name: restart nginx
-      ansible.builtin.service:
-        name: nginx
+    - name: Restart consul
+      ansible.builtin.systemd:
+        name: consul.service
+        state: restarted
+
+    - name: Restart consul-template
+      ansible.builtin.systemd:
+        name: consul-template
         state: restarted

@@ -1,12 +1,11 @@
 upstream my_apps {
-    {% for server in groups["apps"] %}
-    server {{ hostvars[server]["ansible_host"] }}:80;
-    {% endfor %}
+{{- range service "bird-app" }}
+  server {{ .Address }}:{{ .Port }};
+{{- end }}
 }
 
 server {
     listen 80;
-    server_name _;
 
     location / {
         proxy_pass http://my_apps; 

@@ -1,12 +1,15 @@
 ---
-- hosts: apps
-  become: yes
+- name: Set up application VM
+  hosts: apps
+  become: true
+  roles:
+    - role: consul-agent
 
-  tasks:
+  post_tasks:
     - name: System update
       ansible.builtin.apt:
-        update_cache: yes
-       
+        update_cache: true
+
     - name: Install packages
       ansible.builtin.apt:
         name:
@@ -17,20 +20,32 @@
           - build-essential
           - nginx
         state: present
-        
+
+    - name: Create consul service config file
+      ansible.builtin.copy:
+        src: files/bird-app.hcl
+        dest: "{{ consul_config_dir }}/bird-app.hcl"
+        owner: "{{ consul_user }}"
+        group: "{{ consul_user }}"
+        mode: "0644"
+      notify: Restart consul
+
     - name: Clone repo
       ansible.builtin.git:
         repo: "{{ repo_url }}"
         dest: "{{ app_dir }}"
-        update: yes
+        version: "main"
+        update: true
+      become: true
       become_user: "{{ user }}"
 
     - name: Install dependencies into virtualenv
       ansible.builtin.pip:
         requirements: "{{ app_dir }}/requirements.txt"
         virtualenv: "{{ app_dir }}/venv"
-        virtualenv_command: python3 -m venv  
+        virtualenv_command: python3 -m venv
       become: true
+      become_user: "{{ user }}"
 
     - name: Create .env file
       ansible.builtin.template:
@@ -39,50 +54,57 @@
         owner: "{{ user }}"
         group: "{{ user }}"
         mode: '0600'
-      notify: restart gunicorn
+      notify: Restart gunicorn
 
     - name: Create gunicorn systemd service
       ansible.builtin.template:
         src: templates/gunicorn-{{ app_name }}.service.j2
         dest: "/etc/systemd/system/{{ app_name }}.service"
-      notify: restart gunicorn
+        mode: "0644"
+      notify: Restart gunicorn
 
     - name: Enable and start gunicorn service
       ansible.builtin.systemd:
         name: "{{ app_name }}"
-        enabled: yes
+        enabled: true
         state: started
-    
+
     - name: Create nginx site config
       ansible.builtin.template:
         src: templates/nginx-{{ app_name }}.j2
         dest: "/etc/nginx/sites-available/{{ app_name }}"
-      notify: restart nginx
+        mode: "0644"
+      notify: Restart nginx
 
     - name: Enable nginx site
       ansible.builtin.file:
         src: "/etc/nginx/sites-available/{{ app_name }}"
         dest: "/etc/nginx/sites-enabled/{{ app_name }}"
         state: link
-      notify: restart nginx
+      notify: Restart nginx
 
     - name: Remove default nginx config
       ansible.builtin.file:
         path: /etc/nginx/sites-enabled/default
         state: absent
-      notify: restart nginx
+      notify: Restart nginx
 
 
   handlers:
-    - name: restart gunicorn
+    - name: Restart gunicorn
       ansible.builtin.systemd:
-        #The name of the system service is the same 
-        #as the name of the application - app_name
+        # The name of the system service is the same
+        # as the name of the application - app_name
         name: "{{ app_name }}"
         state: restarted
-        daemon_reload: yes
+        daemon_reload: true
 
-    - name: restart nginx
+    - name: Restart nginx
       ansible.builtin.service:
         name: nginx
+        state: restarted
+
+    - name: Restart consul
+      ansible.builtin.systemd:
+        name: consul.service
         state: restarted
