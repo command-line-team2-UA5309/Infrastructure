@@ -2,6 +2,9 @@
 - name: Set up load balancer VM
   hosts: lb
   become: true
+  roles:
+    - consul-install
+    - consul-agent
 
   tasks:
     - name: Packages updates
@@ -13,14 +16,6 @@
         name:
           - nginx
         state: present
-
-    - name: Install Consul
-      ansible.builtin.include_role:
-        name: consul-install
-
-    - name: Create Consul agent config file
-      ansible.builtin.include_role:
-        name: consul-agent
 
     - name: Download and unarchive the consul-template binary
       ansible.builtin.unarchive:

@@ -2,6 +2,9 @@
 - name: Set up application VM
   hosts: apps
   become: true
+  roles:
+    - consul-install
+    - consul-agent
 
   tasks:
     - name: System update
@@ -18,14 +21,6 @@
           - build-essential
           - nginx
         state: present
-
-    - name: Install Consul
-      ansible.builtin.include_role:
-        name: consul-install
-
-    - name: Create Consul agent config file
-      ansible.builtin.include_role:
-        name: consul-agent
 
     - name: Create consul service config file
       ansible.builtin.copy:

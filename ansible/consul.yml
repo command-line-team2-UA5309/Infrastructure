@@ -2,16 +2,11 @@
 - name: Set up Consul VM
   hosts: consul
   become: true
+  roles:
+    - consul-install
+    - consul-server
 
   tasks:
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
-
-    - name: Install Consul
-      ansible.builtin.include_role:
-        name: consul-install
-
-    - name: Create Consul server config file
-      ansible.builtin.include_role:
-        name: consul-server
