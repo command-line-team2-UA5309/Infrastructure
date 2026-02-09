@@ -1,3 +1,4 @@
 consul_user: "consul"
 consul_config_dir: "/etc/consul.d"
 consul_server_address: "192.168.56.14"
+consul_interface_name: "eth1"
