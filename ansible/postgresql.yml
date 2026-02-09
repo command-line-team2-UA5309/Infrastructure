@@ -12,7 +12,11 @@
 
     - name: Install packages
       ansible.builtin.apt:
-        name: postgresql
+        name:
+          - postgresql
+          - python3-psycopg2
+          - libpq-dev
+          - acl
         state: present
 
     - name: Create consul service config file
@@ -23,6 +27,30 @@
         group: "{{ consul_user }}"
         mode: "0644"
       notify: Restart consul
+
+    - name: Create a new database
+      community.postgresql.postgresql_db:
+        name: "{{ db_name }}"
+      become: true
+      become_user: postgres
+
+    - name: Connect to database, create new user
+      community.postgresql.postgresql_user:
+        login_db: "{{ db_name }}"
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+      become: true
+      become_user: postgres
+
+    - name: Give user CRUD privileges
+      community.postgresql.postgresql_privs:
+        login_db: "{{ db_name }}"
+        role: "{{ db_user }}"
+        type: default_privs
+        privs: SELECT,INSERT,UPDATE,DELETE
+        objs: TABLES
+      become: true
+      become_user: postgres
 
   handlers:
     - name: Restart consul
