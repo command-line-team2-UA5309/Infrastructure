@@ -3,10 +3,9 @@
   hosts: lb
   become: true
   roles:
-    - consul-install
-    - consul-agent
+    - role: consul-agent
 
-  tasks:
+  post_tasks:
     - name: Packages updates
       ansible.builtin.apt:
         update_cache: true
@@ -20,7 +19,7 @@
     - name: Download and unarchive the consul-template binary
       ansible.builtin.unarchive:
         src: "https://releases.hashicorp.com/consul-template/{{ consul_template_version }}/consul-template_{{ consul_template_version }}_linux_amd64.zip"
-        dest: "{{ consul_bin_dir }}/"
+        dest: "{{ consul_template_bin_dir }}/"
         remote_src: true
         owner: "root"
         group: "root"

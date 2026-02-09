@@ -1,0 +1,4 @@
+consul_user: "consul"
+consul_config_dir: "/etc/consul.d"
+consul_data_dir: "/var/lib/consul"
+consul_interface_name: eth1

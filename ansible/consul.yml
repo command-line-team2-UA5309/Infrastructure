@@ -3,10 +3,9 @@
   hosts: consul
   become: true
   roles:
-    - consul-install
-    - consul-server
+    - role: consul-server
 
-  tasks:
+  post_tasks:
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
