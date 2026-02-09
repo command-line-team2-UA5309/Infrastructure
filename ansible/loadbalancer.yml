@@ -2,8 +2,6 @@
 - name: Set up load balancer VM
   hosts: lb
   become: true
-  vars_files:
-    - roles/consul/vars/main.yml
 
   tasks:
     - name: Packages updates
@@ -20,7 +18,7 @@
       ansible.builtin.include_role:
         name: consul-install
 
-    - name: Create consul agent config file
+    - name: Create Consul agent config file
       ansible.builtin.include_role:
         name: consul-agent
 
@@ -90,12 +88,12 @@
         state: absent
 
   handlers:
+    - name: Restart consul
+      ansible.builtin.systemd:
+        name: consul.service
+        state: restarted
+
     - name: Restart consul-template
       ansible.builtin.systemd:
         name: consul-template
-        state: restarted
-
-    - name: Restart systemd-resolved
-      ansible.builtin.service:
-        name: systemd-resolved
         state: restarted

@@ -12,6 +12,6 @@
       ansible.builtin.include_role:
         name: consul-install
 
-    - name: Create consul server config file
+    - name: Create Consul server config file
       ansible.builtin.include_role:
         name: consul-server
