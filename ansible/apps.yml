@@ -5,7 +5,6 @@
   roles:
     - role: consul-agent
     - role: lynis-install
-      lynis_cronjob_hostname: "app"
 
   post_tasks:
     - name: System update

@@ -5,4 +5,3 @@
   roles:
     - role: consul-server
     - role: lynis-install
-      lynis_cronjob_hostname: "consul"

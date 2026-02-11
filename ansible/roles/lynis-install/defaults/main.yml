@@ -1,2 +1,3 @@
 lynis_log_dir: "/var/log/lynis"
 lynis_cronjob_script_dir: "/usr/local/bin"
+lynis_cronjob_hostname: "{{ inventory_hostname }}"
