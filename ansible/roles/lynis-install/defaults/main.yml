@@ -1,0 +1,2 @@
+lynis_log_dir: "/var/log/lynis"
+lynis_cronjob_script_dir: "/usr/local/bin"

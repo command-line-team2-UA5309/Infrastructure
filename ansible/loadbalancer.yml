@@ -4,6 +4,8 @@
   become: true
   roles:
     - role: consul-agent
+    - role: lynis-install
+      lynis_cronjob_hostname: "loadbalancer"
 
   post_tasks:
     - name: Packages updates

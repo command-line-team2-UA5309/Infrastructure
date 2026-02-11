@@ -1,0 +1,32 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install Lynis
+  ansible.builtin.apt:
+    name: lynis
+    state: present
+
+- name: Create Lynis directory for logs
+  ansible.builtin.file:
+    path: "{{ lynis_log_dir }}"
+    state: directory
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Create Lynis cronjob script from a template
+  ansible.builtin.template:
+    src: templates/lynis-cronjob.j2
+    dest: "{{ lynis_cronjob_script_dir }}/lynis-cronjob.sh"
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Set up Lynis cronjob
+  ansible.builtin.cron:
+    name: "Lynis audit"
+    minute: "0,30"
+    user: root
+    job: "{{ lynis_cronjob_script_dir }}/lynis-cronjob.sh"

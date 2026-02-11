@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -u
+DATE=$(date +%y%m%d-%H%M%S)
+HOST="{{ lynis_cronjob_hostname }}"
+REPORT="{{ lynis_log_dir }}/report_${HOST}_${DATE}.txt"
+
+lynis audit system --cronjob > "${REPORT}"
+mv "${REPORT}" /vagrant/reports/
