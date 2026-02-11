@@ -1,13 +1,6 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'DB_NAME', description: 'Name of your database')
-        string(name: 'DB_USER', description: 'Database username')
-        password(name: 'DB_PASSWORD', description: 'Password for the database user')
-        password(name: 'SECRET_KEY', description: 'Secret key for the Flask app')
-    }
-
     environment {
         ANSIBLE_CONFIG = 'ansible/ansible.cfg'
     }
@@ -16,8 +9,8 @@ pipeline {
         stage('Consul playbook') {
             steps {
                 ansiblePlaybook(
-                    credentialsId: 'vm_ssh_key', 
-                    installation: 'Ansible', 
+                    credentialsId: 'vm_ssh_key',
+                    installation: 'Ansible',
                     playbook: 'ansible/consul.yml'
                 )
             }
@@ -25,40 +18,68 @@ pipeline {
 
         stage('PostgreSQL playbook') {
             steps {
-                ansiblePlaybook(
-                    credentialsId: 'vm_ssh_key', 
-                    extraVars: [
-                        db_name: "${params.DB_NAME}",
-                        db_user: "${params.DB_USER}",
-                        db_password: "${params.DB_PASSWORD}"
-                    ],
-                    installation: 'Ansible', 
-                    playbook: 'ansible/postgresql.yml'
-                )
+                withCredentials([
+                    string(
+                        credentialsId: 'database_name',
+                        variable: 'DB_NAME'
+                    ),
+                    usernamePassword(
+                        credentialsId: 'database_credentials',
+                        passwordVariable: 'DB_PASSWORD',
+                        usernameVariable: 'DB_USER'
+                    )
+                ]) {
+                    ansiblePlaybook(
+                        credentialsId: 'vm_ssh_key',
+                        extraVars: [
+                            db_name: "$DB_NAME",
+                            db_user: "$DB_USER",
+                            db_password: "$DB_PASSWORD"
+                        ],
+                        installation: 'Ansible',
+                        playbook: 'ansible/postgresql.yml'
+                    )
+                }
             }
         }
 
         stage('Flask application playbook') {
             steps {
-                ansiblePlaybook(
-                    credentialsId: 'vm_ssh_key', 
-                    extraVars: [
-                        db_name: "${params.DB_NAME}",
-                        db_user: "${params.DB_USER}",
-                        db_password: "${params.DB_PASSWORD}",
-                        secret_key: "${params.SECRET_KEY}"
-                    ],
-                    installation: 'Ansible', 
-                    playbook: 'ansible/apps.yml'
-                )
+                withCredentials([
+                    string(
+                        credentialsId: 'database_name',
+                        variable: 'DB_NAME'
+                    ),
+                    usernamePassword(
+                        credentialsId: 'database_credentials',
+                        passwordVariable: 'DB_PASSWORD',
+                        usernameVariable: 'DB_USER'
+                    ),
+                    string(
+                        credentialsId: 'flask_secret_key',
+                        variable: 'SECRET_KEY'
+                    )
+                ]) {
+                    ansiblePlaybook(
+                        credentialsId: 'vm_ssh_key',
+                        extraVars: [
+                            db_name: "$DB_NAME",
+                            db_user: "$DB_USER",
+                            db_password: "$DB_PASSWORD",
+                            secret_key: "$SECRET_KEY"
+                        ],
+                        installation: 'Ansible',
+                        playbook: 'ansible/apps.yml'
+                    )
+                }
             }
         }
 
         stage('Load balancer playbook') {
             steps {
                 ansiblePlaybook(
-                    credentialsId: 'vm_ssh_key', 
-                    installation: 'Ansible', 
+                    credentialsId: 'vm_ssh_key',
+                    installation: 'Ansible',
                     playbook: 'ansible/loadbalancer.yml'
                 )
             }
