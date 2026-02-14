@@ -10,8 +10,8 @@
 
 1. [Install Jenkins](https://www.jenkins.io/doc/book/installing/linux/#debianubuntu)
 
-2. Go to <http://192.168.56.15:8080> (or <http://localhost:8080> if setting up on a host machine)
-and follow installation guide
+2. Go to <http://192.168.56.15:8080> (or <http://localhost:8080>
+if setting up on a host machine) and follow installation guide
 
     * When prompted, install recommended plugins
 
@@ -39,7 +39,8 @@ and follow installation guide
 
     * Go to Manage Jenkins -> Credentials -> System ->
     Global credentials -> Add Credentials
-    * Add SSH key for the virtual machines and use `vm_ssh_key` as the credentials' ID
+    * Add SSH key for the virtual machines and use `vm_ssh_key` as the
+    credentials' ID
     * Add secrets for the playbooks with the following IDs:
 
     1. `database_name` (Secret text)
