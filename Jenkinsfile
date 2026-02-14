@@ -58,6 +58,22 @@ pipeline {
                     string(
                         credentialsId: 'flask_secret_key',
                         variable: 'SECRET_KEY'
+                    ),
+                    string(
+                        credentialsId: 'application_s3_endpoint',
+                        variable: 'S3_ENDPOINT'
+                    ),
+                    string(
+                        credentialsId: 'application_s3_access_key',
+                        variable: 'S3_ACCESS_KEY'
+                    ),
+                    string(
+                        credentialsId: 'application_s3_secret_key',
+                        variable: 'S3_SECRET_KEY'
+                    ),
+                    string(
+                        credentialsId: 'application_s3_bucket_name',
+                        variable: 'S3_BUCKET_NAME'
                     )
                 ]) {
                     ansiblePlaybook(
@@ -66,7 +82,11 @@ pipeline {
                             db_name: "$DB_NAME",
                             db_user: "$DB_USER",
                             db_password: "$DB_PASSWORD",
-                            secret_key: "$SECRET_KEY"
+                            secret_key: "$SECRET_KEY",
+                            s3_endpoint: "$S3_ENDPOINT",
+                            s3_access_key: "$S3_ACCESS_KEY",
+                            s3_secret_key: "$S3_SECRET_KEY",
+                            s3_bucket_name: "$S3_BUCKET_NAME"
                         ],
                         installation: 'Ansible',
                         playbook: 'ansible/apps.yml'
