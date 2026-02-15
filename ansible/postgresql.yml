@@ -1,6 +1,8 @@
 ---
 - name: Set up PostgreSQL VM
-  hosts: db
+  #To run the playbook locally from the hosts.ini file
+  #hosts: db
+  hosts: role_db
   become: true
   roles:
     - role: consul-agent
