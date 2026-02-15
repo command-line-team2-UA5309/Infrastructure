@@ -7,5 +7,5 @@ app_port: 8080
 app_domain: "_"
 
 #data base
-db_host: "192.168.56.20"
+db_host: "postgresql.service.consul"
 db_port: 5432

@@ -7,3 +7,10 @@
     group: "{{ consul_user }}"
     mode: "0644"
   notify: Restart consul
+
+- name: Enable and start consul service
+  ansible.builtin.systemd:
+    name: consul.service
+    enabled: true
+    state: started
+    daemon_reload: true
