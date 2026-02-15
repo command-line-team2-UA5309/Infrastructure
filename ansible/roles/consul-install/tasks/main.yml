@@ -62,10 +62,3 @@
     owner: "root"
     group: "root"
   notify: Restart systemd-resolved
-
-- name: Enable and start consul service
-  ansible.builtin.systemd:
-    name: consul.service
-    enabled: true
-    state: started
-    daemon_reload: true

@@ -39,6 +39,7 @@
         update: true
       become: true
       become_user: "{{ user }}"
+      notify: Apply database migrations
 
     - name: Install dependencies into virtualenv
       ansible.builtin.pip:
@@ -54,8 +55,10 @@
         dest: "{{ app_dir }}/.env"
         owner: "{{ user }}"
         group: "{{ user }}"
-        mode: '0600'
-      notify: Restart gunicorn
+        mode: "0600"
+      notify:
+        - Restart gunicorn
+        - Apply database migrations
 
     - name: Create gunicorn systemd service
       ansible.builtin.template:
@@ -109,3 +112,8 @@
       ansible.builtin.systemd:
         name: consul.service
         state: restarted
+
+    - name: Apply database migrations
+      ansible.builtin.command:
+        cmd: "venv/bin/flask db upgrade"
+        chdir: "{{ app_dir }}"
