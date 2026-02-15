@@ -42,7 +42,17 @@
       become: true
       become_user: postgres
 
-    - name: Give user CRUD privileges
+    - name: Give user CREATE privileges for schema
+      community.postgresql.postgresql_privs:
+        login_db: "{{ db_name }}"
+        role: "{{ db_user }}"
+        type: schema
+        privs: CREATE
+        objs: public
+      become: true
+      become_user: postgres
+
+    - name: Give user CRUD privileges on tables
       community.postgresql.postgresql_privs:
         login_db: "{{ db_name }}"
         role: "{{ db_user }}"
