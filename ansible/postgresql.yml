@@ -28,6 +28,24 @@
         mode: "0644"
       notify: Restart consul
 
+    - name: Add PostgreSQL config file
+      ansible.builtin.copy:
+        src: files/postgresql.conf
+        dest: "/etc/postgresql/16/main/postgresql.hcl"
+        owner: "postgres"
+        group: "postgres"
+        mode: "0644"
+      notify: Restart PostgreSQL
+
+    - name: Add PostgreSQL client authentication config file
+      ansible.builtin.copy:
+        src: files/pg_hba.conf
+        dest: "/etc/postgresql/16/main/pg_hba.conf"
+        owner: "postgres"
+        group: "postgres"
+        mode: "0640"
+      notify: Restart PostgreSQL
+
     - name: Create a new database
       community.postgresql.postgresql_db:
         name: "{{ db_name }}"
@@ -66,4 +84,9 @@
     - name: Restart consul
       ansible.builtin.systemd:
         name: consul
+        state: restarted
+
+    - name: Restart PostgreSQL
+      ansible.builtin.systemd:
+        name: postgresql
         state: restarted
