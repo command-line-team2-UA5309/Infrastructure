@@ -1,4 +1,4 @@
-#apps setting
+# apps setting
 app_name: flaskpictureapp
 #user: vagrant
 user: ubuntu
@@ -7,6 +7,9 @@ repo_url: "https://github.com/command-line-team2-UA5309/FlaskPictureApp.git"
 app_port: 8080
 app_domain: "_"
 
-#data base
+# data base
 db_host: "postgresql.service.consul"
 db_port: 5432
+
+# s3 settings
+s3_region: "eu-north-1"
