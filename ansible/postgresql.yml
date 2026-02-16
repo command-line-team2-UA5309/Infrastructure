@@ -33,7 +33,7 @@
     - name: Add PostgreSQL config file
       ansible.builtin.copy:
         src: files/postgresql.conf
-        dest: "/etc/postgresql/16/main/postgresql.hcl"
+        dest: "/etc/postgresql/16/main/postgresql.conf"
         owner: "postgres"
         group: "postgres"
         mode: "0644"
