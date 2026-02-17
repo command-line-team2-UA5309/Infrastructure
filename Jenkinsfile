@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         ANSIBLE_CONFIG = 'ansible/ansible.cfg'
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
     }
 
     stages {

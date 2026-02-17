@@ -1,6 +1,7 @@
 # apps setting
 app_name: flaskpictureapp
-user: vagrant
+#user: vagrant
+user: ubuntu
 app_dir: "/home/{{ user }}/{{ app_name }}"
 repo_url: "https://github.com/command-line-team2-UA5309/FlaskPictureApp.git"
 app_port: 8080
