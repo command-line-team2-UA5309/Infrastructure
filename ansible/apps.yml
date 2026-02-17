@@ -6,6 +6,7 @@
   become: true
   roles:
     - role: consul-agent
+    - role: lynis-install
 
   post_tasks:
     - name: System update

@@ -5,7 +5,8 @@
   hosts: role_lb
   become: true
   roles:
-   - role: consul-agent
+    - role: consul-agent
+    - role: lynis-install
 
   post_tasks:
     - name: Packages updates

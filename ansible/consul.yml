@@ -6,8 +6,4 @@
   become: true
   roles:
     - role: consul-server
-
-  post_tasks:
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: true
+    - role: lynis-install
