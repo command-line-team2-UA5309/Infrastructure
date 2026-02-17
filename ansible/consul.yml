@@ -1,6 +1,8 @@
 ---
 - name: Set up Consul VM
-  hosts: consul
+  #To run the playbook locally from the hosts.ini file
+  #hosts: consul
+  hosts: role_consul
   become: true
   roles:
     - role: consul-server

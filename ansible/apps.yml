@@ -1,6 +1,8 @@
 ---
 - name: Set up application VM
-  hosts: apps
+  #To run the playbook locally from the hosts.ini file
+  #hosts: apps
+  hosts: role_app
   become: true
   roles:
     - role: consul-agent

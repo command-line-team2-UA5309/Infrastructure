@@ -41,6 +41,8 @@ if setting up on a host machine) and follow installation guide
     Global credentials -> Add Credentials
     * Add SSH key for the virtual machines and use `vm_ssh_key` as the
     credentials' ID
+    * Add AWS access and secret keys, using `aws-access-key` and
+    `aws-secret-access-key` as the credentials IDs respectively
     * Add secrets for the playbooks with the following IDs:
 
     1. `database_name` (Secret text)

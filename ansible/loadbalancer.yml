@@ -1,6 +1,8 @@
 ---
 - name: Set up load balancer VM
-  hosts: lb
+  #To run the playbook locally from the hosts.ini file
+  #hosts: lb
+  hosts: role_lb
   become: true
   roles:
     - role: consul-agent
